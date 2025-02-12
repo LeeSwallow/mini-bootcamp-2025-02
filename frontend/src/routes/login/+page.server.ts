@@ -1,6 +1,6 @@
 import type { Actions } from '@sveltejs/kit';
-import { setAuth } from '$lib/stores/auth';
-import { login } from '$lib/api/auth';
+import { setToken } from '$lib/stores/token';
+import { login } from '$lib/api/backend/auth';
 import type { AuthResponse, LoginRequest, SignupRequest } from '$lib/types/auth';
 import { BACKEND_URL } from '$env/static/private';
 

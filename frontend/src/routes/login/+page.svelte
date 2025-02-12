@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { setAuth } from '$lib/stores/auth';
+    import { setToken } from '$lib/stores/token';
     import { enhance } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
     
@@ -21,7 +21,7 @@
             if (result.type === 'success') {
                 const res = result.data.body;
                 if (res.success) {
-                    setAuth(res.token);
+                    setToken(res.token);
                     goto('/');
                 } else {
                     if (res.errors) {

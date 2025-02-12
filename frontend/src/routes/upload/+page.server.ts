@@ -1,6 +1,6 @@
 import type { Actions } from '@sveltejs/kit';
 import { BACKEND_URL } from '$env/static/private';
-import { uploadDocument, renderDocument } from '$lib/api/document';
+import { uploadDocument, renderDocument } from '$lib/api/backend/document';
 
 export const actions: Actions = {
     // pdf 파일을 받아 백엔드로 전송하고 성공 시 그 음답을 반환한다.
@@ -24,7 +24,6 @@ export const actions: Actions = {
                 body: { success: false, type: renderRes.type, errors: renderRes.errors }
             }
         } 
-        
         return {
             status: renderRes.status,
             body: { success: true, type: renderRes.type, id: uploadRes.id }

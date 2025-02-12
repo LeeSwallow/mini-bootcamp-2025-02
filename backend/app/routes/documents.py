@@ -13,13 +13,18 @@ from app.services.documents.document_service import DocumentService
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-@router.post("/upload")
+
+@router.post("/upload") # 단일 파일 업로드
+async def create_upload_file(file: UploadFile, user: User = Depends(get_current_user),
+                             document_service: DocumentService =  Depends(DocumentService), 
+                             session = Depends(get_session)):
+  return await document_service.create_document(user.id, file, session)
+
+@router.post("/uploads")
 async def create_upload_files(files: List[UploadFile], user: User = Depends(get_current_user),
                               document_service: DocumentService =  Depends(DocumentService), 
                               session = Depends(get_session)):
   return await document_service.create_documents(user.id, files, session)
-
-
 
 @router.delete("/{doc_id}")
 def delete_document(doc_id: uuid.UUID, user: User = Depends(get_current_user),

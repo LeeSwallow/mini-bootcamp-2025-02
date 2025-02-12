@@ -3,7 +3,7 @@
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
     import { goto } from '$app/navigation';
     import { enhance } from '$app/forms';
-    import { setAuth } from '$lib/stores/auth';
+    import { setToken } from '$lib/stores/token.js';
     export let form;
     
     const modalStore = getModalStore();
@@ -37,7 +37,7 @@
         return async ({result}) => {
             let body = result.data.body;
             if (body.success) {
-                setAuth(body.token);
+                setToken(body.token);
                 modalStore.trigger(modal);
             } else {
                 const errors = body.errors;

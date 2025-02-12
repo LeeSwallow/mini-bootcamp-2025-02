@@ -1,5 +1,5 @@
 import type { Actions } from '@sveltejs/kit';
-import { signup } from '$lib/api/auth';
+import { signup } from '$lib/api/backend/auth';
 import type { AuthResponse, SignupRequest } from '$lib/types/auth';
 import { BACKEND_URL } from '$env/static/private';
 

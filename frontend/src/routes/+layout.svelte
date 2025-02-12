@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { AppShell } from '@skeletonlabs/skeleton';
+	import Header from '$lib/components/Navar.svelte';
 
 	// Highlight JS
 	import hljs from 'highlight.js/lib/core';
@@ -25,18 +26,6 @@
 	// Modal Store Setup
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
 	initializeStores();
-
-	// auth store
-	import { setAuth, getAuth, removeAuth } from '$lib/stores/auth';
-	import { auth } from '$lib/stores/auth';
-	import { goto } from '$app/navigation';
-
-
-	function logout() {
-		removeAuth();
-		
-		goto('/');
-	}
 </script>
 <!-- Modal -->
 <Modal />
@@ -44,24 +33,7 @@
 <AppShell>
 	<svelte:fragment slot="header">
 		<!-- App Bar -->
-		<AppBar class="mb-4">
-			<svelte:fragment slot="lead">
-				<strong class="text-xl uppercase">
-					My PDF Summarizer
-				</strong>
-			</svelte:fragment>
-			<svelte:fragment slot="trail">
-				<button class="btn variant-ghost-surface" on:click={() => goto('/')}>홈</button>
-				{#if getAuth().isLogin}
-					<button class="btn variant-ghost-surface" on:click={ logout }>로그아웃</button>
-					<button class="btn variant-ghost-surface" on:click={() => goto('/hub')}>마이페이지</button>
-				{:else}
-					<button class="btn variant-ghost-surface" on:click={() => goto('/login')}>로그인</button>
-					<button class="btn variant-ghost-surface" on:click={() => goto('/signup')}>회원가입</button>
-				{/if}
-
-			</svelte:fragment>
-		</AppBar>
+		<Header />
 	</svelte:fragment>
 	<!-- Page Route Content -->
 	<slot />

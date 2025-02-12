@@ -56,6 +56,30 @@ class DocumentService:
     user = self._check_user_is_none(user)
     return [] if user is None else user.documents # type: ignore
   
+  async def create_document(self, user_id: Optional[UUID], file: UploadFile, session: Session) -> Document:
+    contents = await file.read()
+    doc_id = uuid4()
+    title = str(file.filename).replace(".pdf", "")
+    dir_path = os.path.join(os.getcwd(), "static", str(user_id), "docs")
+    if os.path.exists(dir_path) == False:
+      os.makedirs(dir_path)
+    
+    file_path = os.path.join(dir_path, str(doc_id) + ".pdf")
+    with open(file_path, "wb") as f:
+      f.write(contents)
+    
+    document = Document(
+      id = doc_id,
+      owner_id = user_id,
+      title = title,
+      file_path = file_path
+    )
+    session.add(document)
+    session.commit()
+    session.refresh(document)
+    return document
+
+
 
   async def create_documents(self, user_id: Optional[UUID], files: List[UploadFile], session: Session) -> List[Document]:
     documents = []

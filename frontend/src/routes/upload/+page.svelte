@@ -1,7 +1,7 @@
 <script lang="ts">
     import { FileDropzone } from '@skeletonlabs/skeleton';
     import { get } from 'svelte/store';
-    import { auth } from '$lib/stores/auth';
+    import { local } from '$lib/stores/token';
     import { goto } from '$app/navigation';
 
     const fileInfo = {
@@ -25,7 +25,7 @@
         const response = await fetch('/upload', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${get(auth).token}`,
+                'Authorization': `Bearer ${get(local).token}`,
                 'enctype': 'multipart/form-data',
                 'Content-Type': 'application/pdf'
             },
