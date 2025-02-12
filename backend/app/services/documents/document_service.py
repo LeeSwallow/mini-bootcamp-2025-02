@@ -123,7 +123,7 @@ class DocumentService:
 
     for page in doc:
       pix = page.get_pixmap()  # type: ignore # render page to an image
-      pix.save(os.path.join(dir_path, str(page.number)), "png")
+      pix.save(os.path.join(dir_path, str(page.number + 1)) , "png") # type: ignore
     doc.close()
     return document
   

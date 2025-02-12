@@ -55,7 +55,7 @@ async def render_document(doc_id: uuid.UUID, user: User = Depends(get_current_us
 
 
 @router.get("/{doc_id}/summary")
-async def get_document_summary(doc_id: uuid.UUID, startPage:int, endPage:Optional[int], user: User = Depends(get_current_user),
+async def get_document_summary(doc_id: uuid.UUID, startPage:int, endPage:Optional[int]= None, user: User = Depends(get_current_user),
                              document_service: DocumentService =  Depends(DocumentService), 
                              session:Session = Depends(get_session)):
   return await document_service.get_document_summary(user.id, session, doc_id,  startPage, endPage);
