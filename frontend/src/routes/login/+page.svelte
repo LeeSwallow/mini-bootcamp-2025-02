@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { token } from '$lib/stores/token';
+    import { user_id } from '$lib/stores/user';
     import { convertError } from '$lib/service/errors';
 
     const fields = {
@@ -30,6 +31,7 @@
         if (res.ok) {
             console.log(body);         
             token.set(body.access_token);
+            user_id.set(body.sub);
             goto('/');
         } else {
             const error = convertError(body.detail);

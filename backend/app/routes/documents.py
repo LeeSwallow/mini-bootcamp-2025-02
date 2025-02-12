@@ -59,7 +59,7 @@ async def get_document_summary(doc_id: uuid.UUID, startPage:int, endPage:Optiona
                              document_service: DocumentService =  Depends(DocumentService), 
                              session:Session = Depends(get_session)):
   return await document_service.get_document_summary(user.id, session, doc_id,  startPage, endPage);
-documents_router = router
+
 
 
 # 렌더링 한 이미지 파일 불러오기 /static/render/{user_id}/{pageNum}
@@ -89,3 +89,5 @@ def get_document_thumbnail(doc_id: uuid.UUID, user: User = Depends(get_current_u
       }])
   path = Path(path)
   return FileResponse(path, headers={"Content-Type": "image/png"}, filename=str(doc_id) + ".png")
+
+documents_router = router

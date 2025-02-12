@@ -2,6 +2,7 @@
     import { getModalStore } from '@skeletonlabs/skeleton';
     import { ConfirmSignUpModal } from '$lib/components/modal';
     import { token } from '$lib/stores/token.js';
+    import { user_id } from '$lib/stores/user.js';
     import { convertError } from '$lib/service/errors';
     
     const modalStore = getModalStore();
@@ -23,6 +24,7 @@
         const body = await res.json();
         if (res.ok) {
             token.set(body.access_token);
+            user_id.set(body.sub);
             modalStore.trigger(ConfirmSignUpModal);
         } else {
             const error = convertError(body.detail);

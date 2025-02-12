@@ -1,14 +1,14 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { AppBar } from '@skeletonlabs/skeleton';
-    import { token } from '$lib/stores/token';   
+    import { token } from '$lib/stores/token'; 
+    import { user_id } from '$lib/stores/user';
     import { get } from 'svelte/store';
     let isLoggedIn:boolean = get(token) !== null;
     token.subscribe(value => {
         isLoggedIn = value !== null;
     });
-
-    const handleLogout = () => { token.set(null); goto('/'); };
+    const handleLogout = () => { token.set(null); user_id.set(null); goto('/'); };
 </script>
 <AppBar class="mb-4">
     <svelte:fragment slot="lead">

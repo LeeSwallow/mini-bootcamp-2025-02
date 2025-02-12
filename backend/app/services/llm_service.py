@@ -27,7 +27,20 @@ def input_selector(inputs: dict) -> dict:
 
 llmModel = ChatOpenAI()
 outputParser = StrOutputParser()
-promptTemplate = PromptTemplate.from_template("{content}\n\n 주어진 문서의 내용을 요약해줘. 요약된 내용은 한국어로 번역해서 마크다운 형식으로 보여줘.")
+promptTemplate = PromptTemplate.from_template("{content}\n\n" +
+    "위의 문서 내용을 요약해 주세요. 요약할 때 다음 사항을 포함해 주세요:\n" +
+    "1. 주요 주제와 핵심 포인트\n" +
+    "2. 중요한 세부 사항\n" +
+    "3. 결론 또는 요약된 결과\n\n" +
+    "요약된 내용을 한국어로 번역해 주세요. 번역할 때 정확성과 자연스러움을 유지해 주세요.\n\n" +
+    "번역된 내용을 마크다운 형식으로 보여 주세요. 마크다운 형식의 예시는 다음과 같습니다:\n" +
+    "# 요약\n\n" +
+    "## 주요 주제\n- ...\n\n" +
+    "## 핵심 포인트\n- ...\n\n" +
+    "## 중요한 세부 사항\n- ...\n" +
+    "## 결론\n- ...\n\n" +
+    "위의 형식을 참고하여 요약된 내용을 마크다운 형식으로 작성해 주세요."
+)
 input_pass = RunnableLambda(input_selector)
 
 # connecting chains

@@ -100,3 +100,6 @@ __pycache__/
 /frontend/!.env.test
 /frontend/vite.config.js.timestamp-*
 /frontend/vite.config.ts.timestamp-*
+
+#storage
+/storage/*
