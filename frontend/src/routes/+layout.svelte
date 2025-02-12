@@ -37,6 +37,4 @@
 	</svelte:fragment>
 	<!-- Page Route Content -->
 	<slot />
-
-
 </AppShell>

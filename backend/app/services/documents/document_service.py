@@ -1,14 +1,22 @@
 import os, pymupdf
-from pathlib import Path
 from uuid import UUID, uuid4
 from sqlmodel import Session, select
 from typing import List, Optional
 from fastapi import HTTPException, UploadFile, status
+from dotenv import load_dotenv
 
 from app.models.documents.documents_model import DocumentRead
 from app.models.documents.documents_model import Document
 from app.models.users.users_model import User
 from app.services.llm_service import doc_summary_agent
+
+load_dotenv()
+STORAGE_PATH = str(os.getenv("STORAGE_PATH"))
+if STORAGE_PATH == "" or STORAGE_PATH == None:
+  raise Exception("STORAGE_PATH 환경변수가 설정되지 않았습니다.")
+
+if not os.path.exists(STORAGE_PATH):
+  os.makedirs(STORAGE_PATH)
 
 class DocumentService:
   def _check_user_id_is_none(self, user: Optional[UUID]):
@@ -56,8 +64,8 @@ class DocumentService:
     doc_id = uuid4()
 
     title = str(file.filename).replace(".pdf", "")
-    pdf_dir_path = os.path.join(os.getcwd(), "static", "docs", str(user_id))
-    thumb_dir_path = os.path.join(os.getcwd(), "static", "thumbs", str(user_id))
+    pdf_dir_path = os.path.join(STORAGE_PATH, "static", "docs", str(user_id))
+    thumb_dir_path = os.path.join(STORAGE_PATH, "static", "thumbs", str(user_id))
 
     # 폴더가 없을 경우 생성
     if os.path.exists(pdf_dir_path) == False:
@@ -68,7 +76,7 @@ class DocumentService:
     file_path = os.path.join(pdf_dir_path, str(doc_id) + ".pdf")
     with open(file_path, "wb") as f:
       f.write(contents)
-    
+  
     # pdf 파일의 페이지 수 확인
     doc = pymupdf.open(file_path)
     pageNum = doc.page_count
@@ -92,6 +100,14 @@ class DocumentService:
     session.refresh(document)
     return document
 
+  async def create_documents(self, user_id: Optional[UUID], files: List[UploadFile], session: Session) -> List[Document]:
+    user_id = self._check_user_id_is_none(user_id)
+    documents = []
+    for file in files:
+      document = await self.create_document(user_id, file, session)
+      documents.append(document)
+    return documents
+
   async def render_document(self, user_id : Optional[UUID], doc_id: Optional[UUID], session: Session) -> Document:
     statement = select(Document).where(Document.id == doc_id)
     document = session.exec(statement).first()
@@ -101,7 +117,7 @@ class DocumentService:
 
     doc = pymupdf.open(document.file_path)
 
-    dir_path = os.path.join(os.getcwd(), "static", "render", str(user_id))
+    dir_path = os.path.join(STORAGE_PATH, "static", "render", str(user_id))
     if os.path.exists(dir_path) == False:
       os.makedirs(dir_path)
 
@@ -144,7 +160,7 @@ class DocumentService:
       "summary": summary
     }
 
-  def get_user_documents(self, user : User, session: Session) -> List[DocumentRead]:
+  def get_user_documents(self, user : User) -> List[DocumentRead]:
     user = self._check_user_is_none(user)
     if (user.documents == None):
       return []

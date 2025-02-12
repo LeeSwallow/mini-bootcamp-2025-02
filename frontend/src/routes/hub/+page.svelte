@@ -1,9 +1,17 @@
+<script context="module" lang="ts">
+    export { load } from './+page';
+</script>
+
 <script lang="ts">
+    import type { Document } from '$lib/types/document_model';
     import { FileDropzone } from '@skeletonlabs/skeleton';
     import { getModalStore } from '@skeletonlabs/skeleton';
-    import { uploadDocument } from '$lib/api/frontend/upload'
-    import { fileUploadErrorModal, fileUploadSuccessModel, noFileErrorModal } from '$lib/components/filezoneModal'
+    import { token } from '$lib/stores/token';
+    import { get } from 'svelte/store';
+    import { NoFileErrorModal, FileUploadErrorModal, FileUploadSuccessModel  } from '$lib/components/modal';
 
+    export let data: { documents: Document[] };
+    $: ({ documents } = data);
     const modalStore = getModalStore();
 
     let dropzoneMsg = "( pdf 형식의 문서를 넣어 주세요 )";
@@ -11,7 +19,6 @@
     let targetFile: File | null = null;
 
     $: if (droppedFiles) {
-        console.log(droppedFiles);
         targetFile = droppedFiles[0];
         dropzoneMsg = `( 추가된 파일: ${targetFile.name} )`;
     }
@@ -19,21 +26,32 @@
     const onUploadClick = async () => {
         // 파일이 추가되지 않았을 경우
         if (!targetFile) {
-            modalStore.trigger(noFileErrorModal);
-            return;
+            modalStore.trigger(NoFileErrorModal); return;
         } 
-        // 파일 업로드
-        const response = await uploadDocument('/upload', targetFile);
-        console.log(response);
-    }
-    const docs: any = []
-    for (let i = 0; i < 10; i++) {
-        docs.push({
-            title: `Document ${i + 1}`,
-            thumbnail: "/pdf_icon.png"
-        })
-    }
 
+        const file = targetFile;
+        const formData = new FormData();
+        formData.append('file', file);
+        // 파일 업로드
+        fetch('/api/post/pdf/documents/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${get(token)}` },
+            body: formData
+        }).then(res => {
+            if (res.ok) {
+                res.json().then(data => {
+                    const modal = FileUploadSuccessModel(data.id);
+                    modalStore.trigger(modal);
+                    documents = [data, ...documents];
+                })
+            } else {
+                throw new Error('파일 업로드에 실패했습니다.');
+            }
+        }).catch(err => {
+            console.error(err);
+            modalStore.trigger(FileUploadErrorModal);
+        });
+    }
 </script>
 
 <section class="flex px-6 py-8 w-full">
@@ -54,7 +72,7 @@
     <FileDropzone name="files" accept="application/pdf" bind:files={droppedFiles}>
         <svelte:fragment slot="message">{dropzoneMsg}</svelte:fragment>
     </FileDropzone>
-    <button class="btn variant-ghost-secondary my-6 w-full" on:click={onUploadClick}>업로드 하기</button>
+    <button class="btn variant-ghost-secondary my-6 w-full" on:click|preventDefault={onUploadClick}>업로드 하기</button>
 </div>
 
 <hr class="my-4">
@@ -63,11 +81,11 @@
     <h2 class="text-xl font-semibold">최근 문서</h2>
     <div class="text-lg m-4">최근에 업로드된 문서 목록입니다.</div>
     <div  class="my-6 flex flex-wrap">
-    {#each docs as doc}
+    {#each documents as doc}
         <div class="w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5 xl:w-1/6">
-            <a href="@">
+            <a href="/viewer/{doc.id}">
             <div class="bg-gray-100 m-3 p-4 rounded-lg shadow hover:bg-gray-200 dark:bg-surface-600 dark:border dark:hover:bg-surface-400 dark:border-gray-700">
-            <img src={doc.thumbnail} alt={doc.title} class="w-full h-auto object-cover mb-2"/>
+            <img src="/pdf_icon.png" alt={doc.title} class="w-full h-auto object-cover mb-2"/>
             <h2 class="text-lg font-semibold">{doc.title}</h2>
             </div>
             </a>

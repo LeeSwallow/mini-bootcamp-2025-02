@@ -1,8 +1,12 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { setToken } from '$lib/stores/token';
-    import { enhance } from '$app/forms';
-	import type { ActionResult } from '@sveltejs/kit';
+    import { token } from '$lib/stores/token';
+    import { convertError } from '$lib/service/errors';
+
+    const fields = {
+        login_id: '',
+        password: ''
+    }
     
     const fieldErrors: { [key: string]: string } = {
         all: '',
@@ -13,31 +17,26 @@
     $: userIdError = (fieldErrors.login_id) ? true : false;
     $: passwordError = (fieldErrors.password) ? true : false;
 
-    /** @type {import('./$types').ActionData}*/
-    export let form;
 
-    const MyEnhance = ( { form } ) => {
-        return async ({ result }: { result: ActionResult }) => {
-            if (result.type === 'success') {
-                const res = result.data.body;
-                if (res.success) {
-                    setToken(res.token);
-                    goto('/');
-                } else {
-                    if (res.errors) {
-                        for (const [key, value] of Object.entries(fieldErrors)) {
-                            if (res.errors[key]) {
-                                fieldErrors[key] = res.errors[key];
-                            } else {
-                                fieldErrors[key] = '';
-                            }
-                        }
-                    }
-                }
-            } else {
-                console.error('Unexpected result type:', result.type);
+    const handleSubmit = async (event: Event) => {
+        const res = await fetch('/api/post/json/auth/signin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(fields)
+        });
+        const body = await res.json();
+        if (res.ok) {
+            console.log(body);         
+            token.set(body.access_token);
+            goto('/');
+        } else {
+            const error = convertError(body.detail);
+            for (const key of Object.keys(fieldErrors)) {
+                fieldErrors[key] = (error[key]) ? error[key].msg : '';
             }
-        }  
+        }
     }
 </script>
 
@@ -49,7 +48,7 @@
     로그인
 </h1>
 <!-- 폼 시작 -->
-<form class="space-y-4 md:space-y-6" use:enhance={MyEnhance} method="post">
+<form class="space-y-4 md:space-y-6" method="post" on:submit|preventDefault={handleSubmit}>
     {#if serverError}
     <div class="text-red-500 dark:text-red-400">
         {fieldErrors.all}
@@ -58,7 +57,7 @@
 
     <div>
         <label for="login_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">사용자 ID</label>
-        <input type="input" name="login_id" id="login_id" class="input block w-full p-2.5"required>
+        <input bind:value={fields.login_id} type="input" name="login_id" id="login_id" class="input block w-full p-2.5"required>
     </div>
     {#if !serverError && userIdError}
         <div class="text-red-500 dark:text-red-400"> 
@@ -66,7 +65,7 @@
         </div>
     {/if}
     <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">비밀번호</label>
-    <input type="password" name="password" id="password" placeholder="••••••••" class="input block w-full p-2.5" required>
+    <input bind:value={fields.password} type="password" name="password" id="password" placeholder="••••••••" class="input block w-full p-2.5" required>
     <div class="space-y-4 md:space-y-6">
     
     {#if !serverError && passwordError}

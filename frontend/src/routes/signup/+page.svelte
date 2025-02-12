@@ -1,31 +1,13 @@
 <script lang="ts">
     import { getModalStore } from '@skeletonlabs/skeleton';
-	import type { ModalSettings } from '@skeletonlabs/skeleton';
-    import { goto } from '$app/navigation';
-    import { enhance } from '$app/forms';
-    import { setToken } from '$lib/stores/token.js';
-    export let form;
+    import { ConfirmSignUpModal } from '$lib/components/modal';
+    import { token } from '$lib/stores/token.js';
+    import { convertError } from '$lib/service/errors';
     
     const modalStore = getModalStore();
-    const modal: ModalSettings = {
-        type: 'alert',
-        title: '회원가입 성공',
-        body: '회원가입이 완료되었습니다.\n 홈 화면으로 이동합니다.',
-        buttonTextCancel: '확인',
-        response: () => {
-            self.close();
-            goto('/');
-        }
-    }
 
-    const fieldError = {
-        all: '',
-        email: '',
-        login_id: '',
-        username: '',
-        password1: '',
-        password2: ''
-    }
+    const field = {email: '', login_id: '', username: '', password1: '', password2: ''};
+    const fieldError : Record<string, string> = {all: '',email: '',login_id: '',username: '',password1: '',password2: ''};
     $: serverErrorCheck = fieldError.all.length > 0;
     $: emailErrorCheck = fieldError.email.length > 0;
     $: userIdErrorCheck = fieldError.login_id.length > 0;
@@ -33,19 +15,21 @@
     $: password1ErrorCheck = fieldError.password1.length > 0;
     $: password2ErrorCheck = fieldError.password2.length > 0;
 
-    const MyEnhance = ({ form }) => {
-        return async ({result}) => {
-            let body = result.data.body;
-            if (body.success) {
-                setToken(body.token);
-                modalStore.trigger(modal);
-            } else {
-                const errors = body.errors;
-                for (const key of Object.keys(fieldError) as (keyof typeof fieldError)[]) {
-                    fieldError[key] = errors[key] ? errors[key] : '';
-                }
+    const handleSubmit = async (event: Event) => {
+        const res = await fetch('/api/post/json/auth/signup', {
+            method: 'POST',
+            body: JSON.stringify(field)
+        });
+        const body = await res.json();
+        if (res.ok) {
+            token.set(body.access_token);
+            modalStore.trigger(ConfirmSignUpModal);
+        } else {
+            const error = convertError(body.detail);
+            for (const key of Object.keys(fieldError)) {
+                fieldError[key] = (error[key]) ? error[key].msg : '';
             }
-        }        
+        }
     }
 </script>
 
@@ -56,7 +40,7 @@
 <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
     회원가입
 </h1>
-<form class="space-y-4 md:space-y-6" use:enhance={MyEnhance} method="post">
+<form class="space-y-4 md:space-y-6" method="post" on:submit|preventDefault={handleSubmit}>
     
     {#if serverErrorCheck}
         <div class="text-red-500 dark:text-red-400">
