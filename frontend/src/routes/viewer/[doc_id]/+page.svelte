@@ -2,21 +2,21 @@
     export { load } from './+page';
 </script>
 
-
 <script lang="ts">
     import { onMount } from 'svelte';
     import SvelteMarkdown from 'svelte-markdown';
     import { get } from 'svelte/store';
     import { token } from '$lib/stores/token';
-    import { clipboard } from '@skeletonlabs/skeleton';
+    import { clipboard} from '@skeletonlabs/skeleton';
     import { ProgressRadial } from '@skeletonlabs/skeleton';
+    import { fade } from 'svelte/transition';
 
     export let data;
     const { document, userId } = data;
 
     const pageConfig = {
         currentPage: 1,
-        totalPages: document?.num_page ? document?.num_page - 1 : 0,
+        totalPages: (document?.num_page) ? document?.num_page : 0,
     }
     
     const imageConfig = {
@@ -37,7 +37,10 @@
     $: summaryConfig.buttonStyle = summaryConfig.mode === 0 ? "btn variant-ghost-surface" : (summaryConfig.mode === 1 ? "btn variant-ghost-primary" : "btn variant-ghost-success");
     $: summaryConfig.buttonText = summaryConfig.mode === 0 ? "선택하기" : (summaryConfig.mode === 1 ? `페이지 ${summaryConfig.start} 선택됨` : `페이지 ${summaryConfig.start} ~ ${summaryConfig.end} 선택됨`);
 
+    let visible = false;
+
     onMount(async () => {
+        visible = true;
         imageConfig.currentImageUrl = await loadImage(pageConfig.currentPage) || "";
         preloadImages(pageConfig.currentPage);
     });
@@ -131,9 +134,12 @@
         }
     }
 
+
+
 </script>
 
-<section class="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 py-8">
+{#if visible}
+<section transition:fade={{duration: 1000}} class="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 py-8">
     <div class="bg-white rounded-lg shadow dark:border dark:bg-surface-800 dark:border-gray-700 p-4 h-screen flex flex-col">
         <!-- Header -->
         <div class="flex justify-between items-center mb-4">
@@ -185,6 +191,10 @@
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold">AI 요약</h2>
             <button class="btn variant-ghost-tertiary px-4 m-2" use:clipboard={summaryConfig.source}>복사하기</button>
+            <div class="card p-4 variant-filled-primary" data-popup="copyPopup">
+                <p>Click Content</p>
+                <div class="arrow variant-filled-primary" />
+            </div>
         </div>
         <!-- Viewer -->
         <div class="card p-4 rounded-lg bg-gray-100 dark:bg-surface-600 overflow-y-scroll flex-grow">
@@ -205,5 +215,20 @@
         </div>
     </div>
 </section>
+{/if}
 <style lang="postcss">
+
+[data-popup] {
+	/* Display */
+	display: none;
+	/* Position */
+	position: absolute;
+	top: 0;
+	left: 0;
+	/* Transitions */
+	transition-property: opacity;
+	transition-timing-function: cubic-bezier(.4,0,.2,1);
+	transition-duration: .15s
+}
 </style>
+

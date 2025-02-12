@@ -39,3 +39,11 @@ export const FileUploadSuccessModel: (document_id : string) =>
             response: (r) => { if (r) goto(`/viewer/${document_id}`)}
         }
     }
+
+export const LoadingModal: ModalSettings = {
+    type:"alert",
+    title:"로딩중",
+    body:"잠시만 기다려주세요.",
+    image: "/images/loading-forever.gif",
+    buttonTextCancel: "",
+}

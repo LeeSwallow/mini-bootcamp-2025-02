@@ -13,5 +13,6 @@ export interface Document {
     title: string;
     num_page: number;
     created_at: string;
+    thumbnail_path?: string;
 }
 

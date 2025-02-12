@@ -3,6 +3,7 @@
     import { token } from '$lib/stores/token';
     import { user_id } from '$lib/stores/user';
     import { convertError } from '$lib/service/errors';
+    import { fade } from 'svelte/transition';
 
     const fields = {
         login_id: '',
@@ -42,7 +43,9 @@
     }
 </script>
 
-<section class="flex flex-col items-center justify-center px-6 py-8 mx-auto">
+<section 
+    transition:fade={{duration: 100}}
+    class="flex flex-col items-center justify-center px-6 py-8 mx-auto">
 <div class="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-surface-800 dark:border-gray-700">
 <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
 

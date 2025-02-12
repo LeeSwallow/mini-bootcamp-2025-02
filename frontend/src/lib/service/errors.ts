@@ -14,4 +14,4 @@ export const convertError = (detail: (string | Array<CustomError>)): ErrorRespon
         }
         return errRes;
     }
-}
+} 
