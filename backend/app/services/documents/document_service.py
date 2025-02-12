@@ -5,6 +5,7 @@ from sqlmodel import Session, select
 from typing import List, Optional
 from fastapi import HTTPException, UploadFile, status
 
+from app.models.documents.documents_model import DocumentRead
 from app.models.documents.documents_model import Document
 from app.models.users.users_model import User
 from app.services.llm_service import doc_summary_agent
@@ -48,67 +49,48 @@ class DocumentService:
         "msg": "문서에 접근할 수 있는 권한이 없습니다.",
         "input": None
       }])
-
-
-  def get_user_documents(self, user_id: UUID, session: Session) -> List[Document]:
-    statement = select(User).where(User.id == user_id);
-    user = session.exec(statement).first()
-    user = self._check_user_is_none(user)
-    return [] if user is None else user.documents # type: ignore
   
   async def create_document(self, user_id: Optional[UUID], file: UploadFile, session: Session) -> Document:
+    user_id = self._check_user_id_is_none(user_id)
     contents = await file.read()
     doc_id = uuid4()
+
     title = str(file.filename).replace(".pdf", "")
-    dir_path = os.path.join(os.getcwd(), "static", str(user_id), "docs")
-    if os.path.exists(dir_path) == False:
-      os.makedirs(dir_path)
-    
-    file_path = os.path.join(dir_path, str(doc_id) + ".pdf")
+    pdf_dir_path = os.path.join(os.getcwd(), "static", "docs", str(user_id))
+    thumb_dir_path = os.path.join(os.getcwd(), "static", "thumbs", str(user_id))
+
+    # 폴더가 없을 경우 생성
+    if os.path.exists(pdf_dir_path) == False:
+      os.makedirs(pdf_dir_path)
+    if os.path.exists(thumb_dir_path) == False:
+      os.makedirs(thumb_dir_path)
+
+    file_path = os.path.join(pdf_dir_path, str(doc_id) + ".pdf")
     with open(file_path, "wb") as f:
       f.write(contents)
     
+    # pdf 파일의 페이지 수 확인
+    doc = pymupdf.open(file_path)
+    pageNum = doc.page_count
+    thumbnail_path = os.path.join(thumb_dir_path, str(doc_id))
+    for page in doc:
+      pix = page.get_pixmap();  # type: ignore # render page to an image
+      pix.save(thumbnail_path, "png")
+      break
+    doc.close()
+
     document = Document(
       id = doc_id,
       owner_id = user_id,
       title = title,
-      file_path = file_path
+      num_page= pageNum,
+      file_path = file_path,
+      thumbnail_path= thumbnail_path 
     )
     session.add(document)
     session.commit()
     session.refresh(document)
     return document
-
-
-
-  async def create_documents(self, user_id: Optional[UUID], files: List[UploadFile], session: Session) -> List[Document]:
-    documents = []
-    user_id = self._check_user_id_is_none(user_id)
-
-    for file in files:
-      contents = await file.read()
-      doc_id = uuid4()
-      title = str(file.filename).replace(".pdf", "")
-      dir_path = os.path.join(os.getcwd(), "static", str(user_id), "docs")
-      if os.path.exists(dir_path) == False:
-        os.makedirs(dir_path)
-      
-      file_path = os.path.join(dir_path, str(doc_id) + ".pdf")
-      with open(file_path, "wb") as f:
-        f.write(contents)
-      
-      document = Document(
-        id = doc_id,
-        owner_id = user_id,
-        title = title,
-        file_path = file_path
-      )
-      session.add(document)
-      session.commit()
-      session.refresh(document)
-      documents.append(document)
-    return documents
-
 
   async def render_document(self, user_id : Optional[UUID], doc_id: Optional[UUID], session: Session) -> Document:
     statement = select(Document).where(Document.id == doc_id)
@@ -118,15 +100,14 @@ class DocumentService:
     self._check_access_permission(user_id, document.owner_id)
 
     doc = pymupdf.open(document.file_path)
-    document.num_page = doc.page_count
-    session.commit()
-    session.refresh(document)
-    dir_path = os.path.join(os.getcwd(), "static", str(user_id), "render")
+
+    dir_path = os.path.join(os.getcwd(), "static", "render", str(user_id))
     if os.path.exists(dir_path) == False:
       os.makedirs(dir_path)
+
     for page in doc:
       pix = page.get_pixmap()  # type: ignore # render page to an image
-      pix.save(os.path.join(dir_path, str(page.number) + ".png"), "png")
+      pix.save(os.path.join(dir_path, str(page.number)), "png")
     doc.close()
     return document
   
@@ -162,21 +143,13 @@ class DocumentService:
       "doc_id": doc_id,
       "summary": summary
     }
-  
-  def get_rendered_path(self, user_id: Optional[UUID], doc_id: Optional[UUID], page_num:int, session: Session) -> Path:
-    statement = select(Document).where(Document.id == doc_id)
-    document = session.exec(statement).first()
-    user_id = self._check_user_id_is_none(user_id)
-    document = self._check_document_is_none(document)
-    self._check_access_permission(user_id, document.owner_id)
-    dir_path = os.path.join(os.getcwd(), "static", str(user_id), "render")
-    file_path = os.path.join(dir_path, str(page_num) + ".png")
-    if os.path.exists(file_path) == False:
-      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=[{
-        "type": '-1', 
-        "loc": ["body"],
-        "msg": "렌더링된 페이지를 찾을 수 없습니다.",
-        "input": None
-      }])
-    file_path = Path(file_path)
-    return file_path
+
+  def get_user_documents(self, user : User, session: Session) -> List[DocumentRead]:
+    user = self._check_user_is_none(user)
+    if (user.documents == None):
+      return []
+    documentReads = []
+    for document in user.documents:
+      documentReads.append(DocumentRead(**document.model_dump()))
+
+    return documentReads

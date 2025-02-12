@@ -25,5 +25,4 @@ class JWTUtil:
         raise jwt.ExpiredSignatureError
       except jwt.InvalidTokenError:
         print(repr(jwt.InvalidTokenError))
-        pass
       return payload

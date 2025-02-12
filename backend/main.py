@@ -16,6 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 @asynccontextmanager
 async def lifespan_manager(app: FastAPI):
     # On Startup Event
+    # drop_db_and_tables()
     create_db_and_tables()
     
     load_dotenv()
