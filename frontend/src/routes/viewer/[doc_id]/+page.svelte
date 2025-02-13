@@ -203,7 +203,7 @@
                 <ProgressRadial size="large" stroke={100} meter="stroke-surface-500" track="stroke-surface-500/30" strokeLinecap="butt" value={undefined}/>
             </div>
             {:else}
-                <SvelteMarkdown source={summaryConfig.source} />
+                <SvelteMarkdown source={summaryConfig.source}  options = {{ breaks : true }}/>
             {/if}
         </div>
         <!-- Footer -->

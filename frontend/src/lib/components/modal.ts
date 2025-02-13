@@ -1,5 +1,7 @@
-import type { ModalSettings } from '@skeletonlabs/skeleton';
 import { goto } from '$app/navigation';
+import { user_id } from '$lib/stores/user';
+import { token } from '$lib/stores/token';
+import type { ModalSettings } from '@skeletonlabs/skeleton';
 
 export const ConfirmSignUpModal: ModalSettings = {
     type: 'alert',
@@ -8,8 +10,21 @@ export const ConfirmSignUpModal: ModalSettings = {
     buttonTextCancel: '확인',
 
     response: () => {
-        self.close();
         goto('/');
+    }
+}
+
+export const ConfirmEditProfileModal: ModalSettings = {
+    type: 'alert',
+    title: '프로필 수정 성공',
+    body: '프로필 수정이 완료되었습니다.\n 로그인인 화면으로 이동합니다.',
+    buttonTextCancel: '확인',
+
+    response: () => {
+        goto('/login').then(() => {
+            user_id.set('');
+            token.set('');
+        });
     }
 }
 
@@ -28,22 +43,10 @@ export const FileUploadErrorModal: ModalSettings = {
     response: () => { goto("/hub")}
 }
 
-export const FileUploadSuccessModel: (document_id : string) => 
-    ModalSettings = (document_id) => {
-        return {
-            type:"confirm",
-            title:"파일 업로드 성공",
-            body:"파일 업로드에 성공했습니다. 뷰어로 이동하시겠습니까?",
-            buttonTextConfirm: "확인",
-            buttonTextCancel: "돌아가기",
-            response: (r) => { if (r) goto(`/viewer/${document_id}`)}
-        }
-    }
-
 export const LoadingModal: ModalSettings = {
     type:"alert",
     title:"로딩중",
     body:"잠시만 기다려주세요.",
-    image: "/images/loading-forever.gif",
+    image: "/images/loading-bad.gif",
     buttonTextCancel: "",
 }

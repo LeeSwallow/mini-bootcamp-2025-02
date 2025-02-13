@@ -45,7 +45,7 @@ def delete_document(doc_id: uuid.UUID, user: User = Depends(get_current_user),
                              document_service: DocumentService =  Depends(DocumentService), 
                              session = Depends(get_session)):
   return document_service.delete_document(user.id, doc_id, session)
-
+          
 
 @router.get("/{doc_id}/render")
 async def render_document(doc_id: uuid.UUID, user: User = Depends(get_current_user),
@@ -89,5 +89,6 @@ def get_document_thumbnail(doc_id: uuid.UUID, user: User = Depends(get_current_u
       }])
   path = Path(path)
   return FileResponse(path, headers={"Content-Type": "image/png"}, filename=str(doc_id) + ".png")
+
 
 documents_router = router

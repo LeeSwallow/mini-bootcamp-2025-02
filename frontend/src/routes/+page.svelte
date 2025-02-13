@@ -1,7 +1,10 @@
 <script>
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
-    
+    import { token } from '$lib/stores/token';
+    import { get } from 'svelte/store';
+
+    let login = get( token ) !== null;
     let visible = false;
     
     onMount(() => {
@@ -35,7 +38,11 @@
     </div>
 
     <div class="text-center">
-        <a href="/hub" class="btn variant-ghost-primary btn-xl">시작하기</a>
+        {#if login}
+            <a href="/hub" class="btn variant-ghost-primary btn-xl">시작하기</a>
+        {:else}
+            <a href="/signup" class="btn variant-ghost-primary btn-xl">회원가입하고 시작하기</a>
+        {/if}
     </div>
 </section>
 {/if}
