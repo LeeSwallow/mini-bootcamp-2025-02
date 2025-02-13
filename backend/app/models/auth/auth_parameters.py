@@ -1,5 +1,5 @@
 from pydantic import BaseModel, BeforeValidator, SecretStr, model_validator
-from typing import Annotated, Self
+from typing import Annotated
 from pydantic_core import PydanticCustomError
 
 from app.services.auth.auth_validator import *
@@ -18,7 +18,7 @@ class AuthSignupReq(BaseModel):
   password2: SecretStr
     
   @model_validator(mode='after')
-  def check_passwords_match(self) -> Self:
+  def check_passwords_match(self):
     if self.password1 != self.password2:
       raise PydanticCustomError("-2", "비밀번호가 일치하지 않습니다.")
     return self

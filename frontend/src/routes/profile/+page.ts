@@ -8,20 +8,20 @@ import { goto } from '$app/navigation';
 export const ssr = false;
 
 export const load: PageLoad = async ({ fetch }) => {
-    try {
-        const curr_token:string = get( token ) as string;
-        if (!curr_token) { throw new Error('Unauthorized'); }
-        const res = await fetch('/api/get/users/self', { method: 'GET', headers: { 'Authorization': `Bearer ${curr_token}` } });
-        
-        if (!res.ok) { throw new Error('Unauthorized'); }
-        const resbody = await res.json() as User;
-        
-        return { user: resbody };
-    } catch (error) {
+  try {
+    const curr_token: string = get(token) as string;
+    if (!curr_token) { throw new Error('Unauthorized'); }
+    const res = await fetch('/api/get/users/self', { method: 'GET', headers: { 'Authorization': `Bearer ${curr_token}` } });
 
-        console.error('Error:', error);
-        goto('/').then(() => {
-            token.set(null); user_id.set(null);
-        })
-    }
+    if (!res.ok) { throw new Error('Unauthorized'); }
+    const resbody = await res.json() as User;
+
+    return { user: resbody };
+  } catch (error) {
+
+    console.error('Error:', error);
+    goto('/').then(() => {
+      token.set(null); user_id.set(null);
+    })
+  }
 }

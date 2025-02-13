@@ -1,0 +1,40 @@
+# filepath: /home/min/Workspace/Bootcamp_Project/docker-compose.yml
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "3031:3031"
+    volumes:
+      - ./storage:/app/storage
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8081:8081"
+    environment:
+      - BACKEND_URL=http://backend:3031
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:15
+    container_name: db
+    environment:
+      POSTGRES_USER: sw_bootcamp
+      POSTGRES_PASSWORD: my2157
+      POSTGRES_DB: db_bootcamp
+    ports:
+      - "2158:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

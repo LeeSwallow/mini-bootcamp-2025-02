@@ -12,14 +12,6 @@ aiohappyeyeballs
 aiohttp
 aioitertools
 aiosignal
-alabaster
-altair
-anaconda-anon-usage
-anaconda-catalogs
-anaconda-client
-anaconda-cloud-auth
-anaconda-navigator
-anaconda-project
 annotated-types
 anyio
 appdirs==1.4.4
@@ -36,7 +28,6 @@ atomicwrites==1.4.0
 attrs
 Automat
 autopep8
-Babel
 bcrypt
 beautifulsoup4
 binaryornot
@@ -58,16 +49,6 @@ cloudpickle
 colorama
 colorcet
 comm
-conda
-conda-build
-conda-content-trust
-conda-libmamba-solver
-conda-pack
-conda-package-handling
-conda-repo-cli
-conda-token
-conda_index
-conda_package_streaming
 constantly
 contourpy
 cookiecutter
@@ -87,8 +68,7 @@ distributed
 distro
 docstring-to-markdown
 docutils
-et-xmlfile
-executing
+email_validator
 fastapi==0.115.8
 fastjsonschema
 filelock
@@ -156,9 +136,7 @@ keyring
 kiwisolver
 lazy-object-proxy
 lazy_loader
-lckr_jupyterlab_variableinspector
 libarchive-c
-libmambapy
 linkify-it-py
 llvmlite
 lmdb
@@ -173,7 +151,6 @@ matplotlib-inline
 mccabe
 mdit-py-plugins
 mdurl
-menuinst
 mistune
 mkl-service==2.4.0
 mkl_fft
@@ -185,7 +162,6 @@ multidict
 multipledispatch
 mypy
 mypy-extensions
-navigator-updater
 nbclient
 nbconvert
 nbformat
@@ -268,9 +244,6 @@ pytoolconfig
 pytz
 pyviz_comms
 PyWavelets
-pywin32==305.1
-pywin32-ctypes
-pywinpty
 PyYAML
 pyzmq
 QDarkStyle
@@ -290,7 +263,6 @@ rich
 rope
 rpds-py
 Rtree
-ruamel-yaml-conda
 ruamel.yaml
 ruamel.yaml.clib
 s3fs
@@ -348,7 +320,6 @@ tqdm
 traitlets
 truststore
 Twisted
-twisted-iocpsupport
 typing_extensions
 tzdata
 uc-micro-py
@@ -366,7 +337,6 @@ Werkzeug
 whatthepatch
 wheel==0.44.0
 widgetsnbextension
-win-inet-pton
 wrapt
 xarray
 xlwings

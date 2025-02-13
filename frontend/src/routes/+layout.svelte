@@ -27,11 +27,13 @@
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
 	initializeStores();
 </script>
+	<title>AI PDF Summarizer</title>
 <!-- Modal -->
 <Modal />
 <!-- App Shell -->
 <AppShell>
 	<svelte:fragment slot="header">
+
 		<!-- App Bar -->
 		<Header />
 	</svelte:fragment>

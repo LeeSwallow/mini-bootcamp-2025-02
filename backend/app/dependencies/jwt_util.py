@@ -8,7 +8,7 @@ class JWTUtil:
   def create_token(self, payload: dict, expires_delta: Optional[timedelta] = timedelta(minutes=30)):
     payload_to_encode = payload.copy()
     if expires_delta is None:
-        expires_delta = timedelta(minutes=30)
+        expires_delta = timedelta(minutes=120)
     expire = datetime.now(timezone.utc) + expires_delta
     payload_to_encode.update({
         'exp': expire
